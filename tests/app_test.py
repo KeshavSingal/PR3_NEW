@@ -6,17 +6,25 @@ from project.app import app, db
 TEST_DB = "test.db"
 
 
+import pytest
+from pathlib import Path
+from project.app import app, db
+
+# Path for the dummy test database
+TEST_DB = "test.db"
+
 @pytest.fixture
 def client():
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    # Use the actual PostgreSQL database URL from your environment variable or hardcoded value
     app.config["TESTING"] = True
-    app.config["DATABASE"] = BASE_DIR.joinpath(TEST_DB)
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "postgresql://ece444_deploy_dbtest_ltsg_user:478LTrJCSjPYTMLkQGBIRpwozd26eTEI@dpg-crvjib08fa8c73eksc6g-a.oregon-postgres.render.com/ece444_deploy_dbtest_ltsg"
+    )
 
     with app.app_context():
-        db.create_all()  # setup
+        db.create_all()  # setup the PostgreSQL database
         yield app.test_client()  # tests run here
-        db.drop_all()  # teardown
+        db.session.remove()  # clean up session
 
 
 def login(client, username, password):
