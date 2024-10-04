@@ -1,10 +1,10 @@
-import os
 import pytest
 from pathlib import Path
 import json
 from project.app import app, db
 
 TEST_DB = "test.db"
+
 
 @pytest.fixture
 def client():
@@ -17,7 +17,8 @@ def client():
         db.create_all()  # setup
         yield app.test_client()  # tests run here
         db.drop_all()  # teardown
-        
+
+
 def login(client, username, password):
     """Login helper function"""
     return client.post(
@@ -73,6 +74,7 @@ def test_messages(client):
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
+
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
     rv = client.get("/delete/1")
@@ -82,4 +84,3 @@ def test_delete_message(client):
     rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 1
-    
